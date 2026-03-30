@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Subscription</title>
+</head>
+<body>
+    <h1>Add Subscription</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit">Save</button>
+    </form>
+
+    <a href="/subscriptions/">Back</a>
+</body>
+</html>
