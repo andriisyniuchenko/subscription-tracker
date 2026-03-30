@@ -1,16 +1,19 @@
 from django.shortcuts import render, redirect
 from .models import Subscription
 from .forms import SubscriptionForm
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def subscription_list(request):
-    subscriptions = Subscription.objects.all()
+    subscriptions = Subscription.objects.filter(user=request.user)
 
     return render(request, 'subscriptions/list.html', {
         'subscriptions': subscriptions
     })
 
 
+@login_required
 def create_subscription(request):
     if request.method == 'POST':
         form = SubscriptionForm(request.POST)
