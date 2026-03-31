@@ -1,24 +1,51 @@
 # Subscription Tracker
 
-Simple Django web app to track personal subscriptions and recurring expenses.
+Backend Django web application for tracking personal subscriptions and recurring expenses.
+
 
 ## Features
 
-- Add and manage subscriptions
-- Track monthly payments
-- Basic dashboard (planned)
+- User registration and authentication
+- Login / Logout functionality
+- Full CRUD for subscriptions
+- Dashboard with monthly cost calculation
+- User-specific data access (each user sees only their own data)
 
 ## Tech Stack
 
 - Python
 - Django
-- SQLite
+- PostgreSQL
+- Docker & Docker Compose
 
 ## Run locally
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install django
-python manage.py migrate
-python manage.py runserver
+
+git clone https://github.com/andriisyniuchenko/subscription-tracker
+cd subscription-tracker
+```
+
+
+### Run project
+```bash
+make up
+```
+
+### Seed demo data
+```bash
+make demo
+```
+
+### Stop project
+```bash
+make down
+```
+
+## After startup, open:
+
+🌐 http://localhost:8000  
+
+## Demo Users
+- username: admin
+- password: admin123
