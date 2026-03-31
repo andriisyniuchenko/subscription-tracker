@@ -35,7 +35,7 @@ def update_subscription(request, pk):
     subscription = get_object_or_404(
         Subscription,
         id=pk,
-        user=request.user  # 🔥 важливо! захист
+        user=request.user
     )
 
     if request.method == 'POST':
@@ -48,4 +48,20 @@ def update_subscription(request, pk):
 
     return render(request, 'subscriptions/update.html', {
         'form': form
+    })
+
+@login_required
+def delete_subscription(request, pk):
+    subscription = get_object_or_404(
+        Subscription,
+        id=pk,
+        user=request.user
+    )
+
+    if request.method == 'POST':
+        subscription.delete()
+        return redirect('subscription_list')
+
+    return render(request, 'subscriptions/delete.html', {
+        'subscription': subscription
     })

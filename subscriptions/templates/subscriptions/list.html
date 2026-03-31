@@ -11,6 +11,7 @@
             <li>
                 {{ sub.name }} - ${{ sub.price }} ({{ sub.billing_cycle }})
                 <a href="/subscriptions/update/{{ sub.id }}/">Edit</a>
+                <a href="/subscriptions/delete/{{ sub.id }}/">Delete</a>
             </li>
         {% empty %}
             <li>No subscriptions yet</li>

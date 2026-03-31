@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Subscription</title>
+</head>
+<body>
+    <h1>Delete Subscription</h1>
+
+    <p>Are you sure you want to delete "{{ subscription.name }}"?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Yes, delete</button>
+    </form>
+
+    <a href="/subscriptions/">Cancel</a>
+</body>
+</html>
