@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Subscription
-from .forms import SubscriptionForm
+from .forms import SubscriptionForm, RegistrationForm
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login
 
 
 @login_required
@@ -85,3 +86,17 @@ def subscription_list(request):
         'total_monthly': round(total_monthly, 2),
         'active_count': active_count,
     })
+
+
+
+def register_view(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('subscription_list')
+    else:
+        form = RegistrationForm()
+
+    return render(request, 'auth/register.html', {'form': form})
