@@ -119,3 +119,8 @@ STATIC_URL = 'static/'
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/subscriptions/'
+
+LOGOUT_REDIRECT_URL = '/login/'
+
+SESSION_COOKIE_AGE = 1200
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
