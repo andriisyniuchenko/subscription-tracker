@@ -10,6 +10,7 @@
         {% for sub in subscriptions %}
             <li>
                 {{ sub.name }} - ${{ sub.price }} ({{ sub.billing_cycle }})
+                <a href="/subscriptions/update/{{ sub.id }}/">Edit</a>
             </li>
         {% empty %}
             <li>No subscriptions yet</li>
