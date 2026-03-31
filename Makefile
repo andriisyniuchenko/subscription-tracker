@@ -1,4 +1,4 @@
-.PHONY: run migrate makemigrations superuser up down
+.PHONY: run migrate migrate-docker makemigrations superuser up down
 
 run:
 	python manage.py runserver
@@ -6,11 +6,14 @@ run:
 migrate:
 	python manage.py migrate
 
+migrate-docker:
+	docker compose exec web python manage.py migrate
+
 makemigrations:
 	python manage.py makemigrations
 
 superuser:
-	python manage.py createsuperuser
+	docker compose exec web python manage.py createsuperuser
 
 up:
 	docker compose up --build -d
