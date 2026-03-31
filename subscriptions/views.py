@@ -65,3 +65,23 @@ def delete_subscription(request, pk):
     return render(request, 'subscriptions/delete.html', {
         'subscription': subscription
     })
+
+
+@login_required
+def subscription_list(request):
+    subscriptions = Subscription.objects.filter(user=request.user)
+
+    total_monthly = sum(
+        sub.price if sub.billing_cycle == 'monthly'
+        else sub.price / 12
+        for sub in subscriptions
+        if sub.is_active
+    )
+
+    active_count = subscriptions.filter(is_active=True).count()
+
+    return render(request, 'subscriptions/list.html', {
+        'subscriptions': subscriptions,
+        'total_monthly': round(total_monthly, 2),
+        'active_count': active_count,
+    })
