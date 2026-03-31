@@ -1,4 +1,4 @@
-.PHONY: run migrate migrate-docker makemigrations superuser seed up down
+.PHONY: run migrate migrate-docker makemigrations superuser seed up down demo
 
 run:
 	python manage.py runserver
