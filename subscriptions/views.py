@@ -79,8 +79,10 @@ def subscription_list(request):
     })
 
 
-
 def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('subscription_list')
+
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
