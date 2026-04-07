@@ -6,15 +6,6 @@ from django.contrib.auth import login
 
 
 @login_required
-def subscription_list(request):
-    subscriptions = Subscription.objects.filter(user=request.user)
-
-    return render(request, 'subscriptions/list.html', {
-        'subscriptions': subscriptions
-    })
-
-
-@login_required
 def create_subscription(request):
     if request.method == 'POST':
         form = SubscriptionForm(request.POST)
