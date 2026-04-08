@@ -41,6 +41,8 @@ class Subscription(models.Model):
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
 
+    notes = models.TextField(blank=True, default='')
+
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

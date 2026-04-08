@@ -41,6 +41,7 @@
                         <th>Start date</th>
                         <th>End date</th>
                         <th>Status</th>
+                        <th>Notes</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -57,6 +58,13 @@
                                     <span class="badge badge-green">Active</span>
                                 {% else %}
                                     <span class="badge badge-gray">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if sub.notes %}
+                                    <span class="note-icon" title="{{ sub.notes }}">&#128221;</span>
+                                {% else %}
+                                    <span style="color:#d1d5db;">—</span>
                                 {% endif %}
                             </td>
                             <td>

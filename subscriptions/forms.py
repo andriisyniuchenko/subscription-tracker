@@ -13,10 +13,11 @@ class SubscriptionForm(forms.ModelForm):
 
     class Meta:
         model = Subscription
-        fields = ['name', 'price', 'billing_cycle', 'category', 'start_date', 'end_date', 'is_active']
+        fields = ['name', 'price', 'billing_cycle', 'category', 'start_date', 'end_date', 'notes', 'is_active']
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date'}),
             'end_date': forms.DateInput(attrs={'type': 'date'}),
+            'notes': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Optional notes...'}),
         }
 
 
