@@ -8,13 +8,17 @@ A Django web application for tracking personal subscriptions and recurring expen
 
 - **Authentication** — registration, login, logout with session management
 - **Subscription CRUD** — create, view, edit, and delete subscriptions
-- **Custom categories** — each user creates their own categories; subscriptions are grouped by category on the dashboard
+- **Custom categories** — each user creates their own categories; subscriptions are grouped by category on the dashboard with a per-category monthly total
+- **Search & filter** — filter subscriptions by name, category, and status (active/inactive)
+- **Sortable columns** — click any column header to sort; click again to reverse
 - **Dashboard stats** — total monthly cost, active subscription count, and a 12-month annual forecast
-- **Annual forecast** — calculates projected spend for the next 12 months, accounting for subscription end dates (subscriptions ending early contribute only their active portion)
+- **Annual forecast** — counts actual billing cycles (not calendar days), accounting for end dates and first/last month price overrides
+- **First/last month pricing** — optionally set a different price for the first or last billing cycle (e.g. sign-up fee, final discounted payment)
 - **Date picker** — start date and end date fields use a native calendar picker
 - **Notes** — optional free-text notes per subscription
 - **Per-user data isolation** — users see only their own subscriptions and categories
 - **Django admin** — full admin panel for superusers
+- **Test suite** — 45 tests covering models, views, forecast logic, filters, and data isolation
 
 ---
 
@@ -46,7 +50,7 @@ subscription-tracker/
 │   │   ├── auth/            # Login, register templates
 │   │   └── subscriptions/   # List, create, update, delete, categories
 │   └── migrations/
-├── seed_demo_data.py        # Creates a demo admin user
+├── seed_demo_data.py        # Creates demo admin + sample subscriptions with categories
 ├── Dockerfile
 ├── docker-compose.yml
 ├── Makefile
@@ -121,6 +125,7 @@ All configuration is done via a `.env` file (never committed to git). Use `.env.
 | `DB_PASSWORD` | PostgreSQL password                | `postgres`               |
 | `DB_HOST`     | Database host                      | `db` (Docker) / `localhost` |
 | `DB_PORT`     | Database port                      | `5432`                   |
+| `SESSION_COOKIE_AGE` | Session lifetime in seconds | `1800` (30 min)          |
 
 ---
 
@@ -128,7 +133,8 @@ All configuration is done via a `.env` file (never committed to git). Use `.env.
 
 | Command                   | Description                                      |
 |---------------------------|--------------------------------------------------|
-| `make demo`               | Full setup: build, migrate, seed demo user       |
+| `make demo`               | Full setup: build, migrate, seed demo data       |
+| `make test`               | Run the test suite inside the container          |
 | `make up`                 | Build and start containers in background         |
 | `make down`               | Stop and remove containers and volumes           |
 | `make logs`               | Stream web container logs                        |
