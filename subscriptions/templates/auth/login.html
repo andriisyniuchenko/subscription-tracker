@@ -1,23 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
-    <h1>Login</h1>
+{% extends "base.html" %}
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
+{% block title %}Login{% endblock %}
 
-        {% if form.errors %}
-            <p style="color: red;">Invalid username or password.</p>
-        {% endif %}
+{% block body %}
+<div class="auth-wrap">
+    <div class="auth-card">
+        <h1>Sign In</h1>
 
-        <button type="submit">Login</button>
-    </form>
+        <form method="post">
+            {% csrf_token %}
 
-    <p>Don't have an account?</p>
-    <a href="/register/">Register</a>
-</body>
-</html>
+            {% if form.errors %}
+                <ul class="errorlist">
+                    <li>Invalid username or password.</li>
+                </ul>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="id_username">Username</label>
+                {{ form.username }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                {{ form.password }}
+            </div>
+
+            <button class="btn btn-primary" style="width:100%" type="submit">Login</button>
+        </form>
+
+        <p class="auth-footer">
+            Don't have an account? <a href="{% url 'register' %}">Register</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

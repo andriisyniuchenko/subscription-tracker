@@ -1,42 +1,63 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Subscriptions</title>
-</head>
-<body>
+{% extends "base.html" %}
 
+{% block title %}Subscriptions{% endblock %}
+
+{% block content %}
+<div class="page-header">
     <h1>Subscriptions</h1>
+    <a class="btn btn-primary" href="{% url 'create_subscription' %}">+ Add Subscription</a>
+</div>
 
-    <p>Logged in as {{ request.user.username }}</p>
+<div class="stats">
+    <div class="stat-card">
+        <div class="label">Total monthly cost</div>
+        <div class="value">${{ total_monthly }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">Active subscriptions</div>
+        <div class="value">{{ active_count }}</div>
+    </div>
+</div>
 
-    <form method="post" action="/logout/">
-        {% csrf_token %}
-        <button type="submit">Logout</button>
-    </form>
-
-    <hr>
-
-    <h2>Dashboard</h2>
-
-    <p>Total monthly cost: ${{ total_monthly }}</p>
-    <p>Active subscriptions: {{ active_count }}</p>
-
-    <hr>
-
-    <a href="/subscriptions/create/">Add Subscription</a>
-
-    <ul>
-        {% for sub in subscriptions %}
-            <li>
-                {{ sub.name }} - ${{ sub.price }} ({{ sub.billing_cycle }})
-
-                <a href="/subscriptions/update/{{ sub.id }}/">Edit</a>
-                <a href="/subscriptions/delete/{{ sub.id }}/">Delete</a>
-            </li>
-        {% empty %}
-            <li>No subscriptions yet</li>
-        {% endfor %}
-    </ul>
-
-</body>
-</html>
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Billing</th>
+                <th>Start date</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sub in subscriptions %}
+                <tr>
+                    <td>{{ sub.name }}</td>
+                    <td>${{ sub.price }}</td>
+                    <td>{{ sub.get_billing_cycle_display }}</td>
+                    <td>{{ sub.start_date }}</td>
+                    <td>
+                        {% if sub.is_active %}
+                            <span class="badge badge-green">Active</span>
+                        {% else %}
+                            <span class="badge badge-gray">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <a class="btn btn-secondary btn-sm" href="{% url 'update_subscription' sub.id %}">Edit</a>
+                            <a class="btn btn-danger btn-sm" href="{% url 'delete_subscription' sub.id %}">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="empty">No subscriptions yet. Add your first one!</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

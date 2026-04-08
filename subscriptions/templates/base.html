@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Subscription Tracker{% endblock %}</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            min-height: 100vh;
+        }
+
+        /* Nav */
+        nav {
+            background: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+        }
+
+        nav .brand {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        nav .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        nav .nav-right form { margin: 0; }
+
+        /* Main */
+        main {
+            max-width: 860px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Card */
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            padding: 2rem;
+        }
+
+        h1 { font-size: 1.5rem; margin-bottom: 1.5rem; color: #111827; }
+        h2 { font-size: 1.1rem; margin-bottom: 1rem; color: #374151; }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+        }
+
+        .stat-card .label { font-size: 0.8rem; color: #6b7280; margin-bottom: 0.25rem; }
+        .stat-card .value { font-size: 1.5rem; font-weight: 700; color: #4f46e5; }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th {
+            text-align: left;
+            padding: 0.6rem 0.75rem;
+            border-bottom: 2px solid #e5e7eb;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+        }
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #f3f4f6;
+            color: #374151;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f9fafb; }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .badge-green { background: #d1fae5; color: #065f46; }
+        .badge-gray  { background: #f3f4f6; color: #6b7280; }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-primary  { background: #4f46e5; color: #fff; }
+        .btn-primary:hover  { background: #4338ca; }
+        .btn-danger   { background: #ef4444; color: #fff; }
+        .btn-danger:hover   { background: #dc2626; }
+        .btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+        .btn-secondary:hover { background: #e5e7eb; }
+        .btn-sm { padding: 0.3rem 0.65rem; font-size: 0.8rem; }
+
+        .actions { display: flex; gap: 0.5rem; }
+
+        /* Forms */
+        .form-group { margin-bottom: 1.25rem; }
+        label { display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem; }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="password"],
+        input[type="email"],
+        select {
+            width: 100%;
+            padding: 0.55rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #111827;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        input:focus, select:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+
+        /* Checkbox row */
+        .checkbox-row { display: flex; align-items: center; gap: 0.5rem; }
+        .checkbox-row input[type="checkbox"] { width: auto; }
+
+        .form-actions { display: flex; gap: 0.75rem; align-items: center; margin-top: 1.5rem; }
+
+        /* Errors */
+        .errorlist {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            color: #b91c1c;
+            font-size: 0.875rem;
+            list-style: none;
+        }
+        .field-error { color: #ef4444; font-size: 0.8rem; margin-top: 0.25rem; }
+
+        /* Auth pages */
+        .auth-wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f2f5;
+        }
+        .auth-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 400px;
+        }
+        .auth-card h1 { text-align: center; margin-bottom: 1.75rem; }
+        .auth-footer { text-align: center; margin-top: 1.25rem; font-size: 0.85rem; color: #6b7280; }
+        .auth-footer a { color: #4f46e5; text-decoration: none; }
+
+        /* Misc */
+        .empty { color: #9ca3af; font-size: 0.9rem; padding: 1.5rem 0; text-align: center; }
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+        .page-header h1 { margin-bottom: 0; }
+    </style>
+</head>
+<body>
+
+{% if request.user.is_authenticated %}
+<nav>
+    <a class="brand" href="{% url 'subscription_list' %}">Subscription Tracker</a>
+    <div class="nav-right">
+        <span>{{ request.user.username }}</span>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="btn btn-secondary btn-sm" type="submit">Logout</button>
+        </form>
+    </div>
+</nav>
+{% endif %}
+
+{% block body %}
+<main>
+    {% block content %}{% endblock %}
+</main>
+{% endblock %}
+
+</body>
+</html>
