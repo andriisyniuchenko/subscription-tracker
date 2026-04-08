@@ -24,6 +24,11 @@ def _add_months(d, n):
     return date(year, month, day)
 
 
+def _monthly_price(sub):
+    """Regular monthly equivalent price (no first/last overrides)."""
+    return sub.price if sub.billing_cycle == 'monthly' else sub.price / 12
+
+
 def _effective_price(sub, month_start):
     """Return the price for the current calendar month (used in total_monthly)."""
     if sub.first_month_price is not None and month_start == _month_start(sub.start_date):
@@ -179,7 +184,7 @@ def subscription_list(request):
     # --- Stats (on filtered set) ---
     today = date.today()
     total_monthly = sum(
-        (_effective_price(sub, _month_start(today)) if sub.billing_cycle == 'monthly' else sub.price / 12)
+        _effective_price(sub, _month_start(today)) if sub.billing_cycle == 'monthly' else _monthly_price(sub)
         for sub in subscriptions if sub.is_active
     )
     active_count = sum(1 for sub in subscriptions if sub.is_active)
@@ -201,14 +206,12 @@ def subscription_list(request):
 
     for group in groups:
         group['monthly_total'] = round(sum(
-            s.price if s.billing_cycle == 'monthly' else s.price / 12
-            for s in group['subscriptions'] if s.is_active
+            _monthly_price(s) for s in group['subscriptions'] if s.is_active
         ), 2)
 
     if uncategorized:
         uncat_total = round(sum(
-            s.price if s.billing_cycle == 'monthly' else s.price / 12
-            for s in uncategorized if s.is_active
+            _monthly_price(s) for s in uncategorized if s.is_active
         ), 2)
         groups.append({'category': None, 'subscriptions': uncategorized, 'monthly_total': uncat_total})
 
