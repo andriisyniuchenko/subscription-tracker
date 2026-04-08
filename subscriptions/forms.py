@@ -8,7 +8,11 @@ from .models import Subscription
 class SubscriptionForm(forms.ModelForm):
     class Meta:
         model = Subscription
-        fields = ['name', 'price', 'billing_cycle', 'start_date', 'is_active']
+        fields = ['name', 'price', 'billing_cycle', 'start_date', 'end_date', 'is_active']
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
 
 class RegistrationForm(UserCreationForm):

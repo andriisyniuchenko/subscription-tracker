@@ -20,6 +20,7 @@ class Subscription(models.Model):
     )
 
     start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
 

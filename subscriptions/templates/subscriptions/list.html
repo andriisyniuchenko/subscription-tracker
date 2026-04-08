@@ -27,6 +27,7 @@
                 <th>Price</th>
                 <th>Billing</th>
                 <th>Start date</th>
+                <th>End date</th>
                 <th>Status</th>
                 <th></th>
             </tr>
@@ -38,6 +39,7 @@
                     <td>${{ sub.price }}</td>
                     <td>{{ sub.get_billing_cycle_display }}</td>
                     <td>{{ sub.start_date }}</td>
+                    <td>{{ sub.end_date|default:"—" }}</td>
                     <td>
                         {% if sub.is_active %}
                             <span class="badge badge-green">Active</span>
