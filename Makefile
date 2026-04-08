@@ -1,7 +1,20 @@
-.PHONY: run migrate migrate-docker makemigrations superuser seed up down demo
+.PHONY: up down demo logs shell migrate migrate-docker makemigrations makemigrations-docker superuser seed
 
-run:
-	python manage.py runserver
+# ── Docker ────────────────────────────────────────────────────────────────────
+
+up:
+	docker compose up --build -d
+
+down:
+	docker compose down -v
+
+logs:
+	docker compose logs -f web
+
+shell:
+	docker compose exec web python manage.py shell
+
+# ── Database ──────────────────────────────────────────────────────────────────
 
 migrate:
 	python manage.py migrate
@@ -12,21 +25,26 @@ migrate-docker:
 makemigrations:
 	python manage.py makemigrations
 
+makemigrations-docker:
+	docker compose exec web python manage.py makemigrations
+
 superuser:
 	docker compose exec web python manage.py createsuperuser
 
+# ── Seed ──────────────────────────────────────────────────────────────────────
 
 seed:
 	docker compose exec web python seed_demo_data.py
 
-up:
-	docker compose up --build -d
+# ── Local dev (no Docker) ─────────────────────────────────────────────────────
 
-down:
-	docker compose down -v
+run:
+	python manage.py runserver
+
+# ── Quick start ───────────────────────────────────────────────────────────────
 
 demo:
-	make up
+	docker compose up --build -d
 	sleep 5
 	docker compose exec web python manage.py migrate
-	make seed
+	docker compose exec web python seed_demo_data.py
