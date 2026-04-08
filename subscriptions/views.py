@@ -1,8 +1,39 @@
+from datetime import date
+from decimal import Decimal
+
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Subscription, Category
-from .forms import SubscriptionForm, CategoryForm, RegistrationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
+
+from .models import Subscription, Category
+from .forms import SubscriptionForm, CategoryForm, RegistrationForm
+
+
+def _annual_forecast(subscriptions):
+    today = date.today()
+    try:
+        forecast_end = today.replace(year=today.year + 1)
+    except ValueError:
+        forecast_end = today.replace(year=today.year + 1, day=28)
+
+    total_days = (forecast_end - today).days
+    forecast = Decimal('0')
+
+    for sub in subscriptions:
+        if not sub.is_active:
+            continue
+
+        period_start = max(sub.start_date, today)
+        period_end = min(sub.end_date, forecast_end) if sub.end_date else forecast_end
+
+        if period_end <= period_start:
+            continue
+
+        days_active = (period_end - period_start).days
+        annual_price = sub.price * 12 if sub.billing_cycle == 'monthly' else sub.price
+        forecast += annual_price * Decimal(days_active) / Decimal(total_days)
+
+    return round(forecast, 2)
 
 
 @login_required
@@ -89,6 +120,7 @@ def subscription_list(request):
         'groups': groups,
         'total_monthly': round(total_monthly, 2),
         'active_count': active_count,
+        'annual_forecast': _annual_forecast(subscriptions),
     })
 
 

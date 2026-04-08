@@ -20,6 +20,10 @@
         <div class="label">Active subscriptions</div>
         <div class="value">{{ active_count }}</div>
     </div>
+    <div class="stat-card" style="grid-column: span 2;">
+        <div class="label">Annual forecast <span style="font-weight:400; color:#9ca3af;">(next 12 months, accounting for end dates)</span></div>
+        <div class="value">${{ annual_forecast }}</div>
+    </div>
 </div>
 
 {% for group in groups %}
