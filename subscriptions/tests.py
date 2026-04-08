@@ -6,6 +6,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 
 from .models import Category, Subscription
+from .forms import SubscriptionForm
 from .views import _add_months, _annual_forecast, _effective_price, _month_start
 
 
@@ -199,6 +200,44 @@ class SubscriptionModelTest(TestCase):
         self.assertIsNone(sub.first_month_price)
         self.assertIsNone(sub.last_month_price)
         self.assertEqual(sub.notes, '')
+
+
+# ── SubscriptionForm validation ───────────────────────────────────────────────
+
+class SubscriptionFormValidationTest(TestCase):
+
+    def setUp(self):
+        self.user = make_user()
+
+    def _form(self, **kwargs):
+        data = {
+            'name': 'Test',
+            'price': '50.00',
+            'billing_cycle': 'monthly',
+            'start_date': '2026-01-01',
+        }
+        data.update(kwargs)
+        return SubscriptionForm(self.user, data)
+
+    def test_valid_form(self):
+        self.assertTrue(self._form().is_valid())
+
+    def test_end_date_before_start_date_is_invalid(self):
+        form = self._form(start_date='2026-06-01', end_date='2026-01-01')
+        self.assertFalse(form.is_valid())
+        self.assertIn('end_date', form.errors)
+
+    def test_end_date_equal_to_start_date_is_invalid(self):
+        form = self._form(start_date='2026-01-01', end_date='2026-01-01')
+        self.assertFalse(form.is_valid())
+        self.assertIn('end_date', form.errors)
+
+    def test_end_date_after_start_date_is_valid(self):
+        form = self._form(start_date='2026-01-01', end_date='2026-06-01')
+        self.assertTrue(form.is_valid())
+
+    def test_end_date_optional(self):
+        self.assertTrue(self._form(start_date='2026-01-01').is_valid())
 
 
 # ── Auth views ────────────────────────────────────────────────────────────────

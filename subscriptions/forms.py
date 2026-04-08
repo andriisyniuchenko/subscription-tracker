@@ -20,6 +20,20 @@ class SubscriptionForm(forms.ModelForm):
             'end_date': forms.DateInput(attrs={'type': 'date'}),
             'notes': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Optional notes...'}),
         }
+        help_texts = {
+            'first_month_price': 'Optional. Use if the first billing cycle costs differently (e.g. sign-up fee).',
+            'last_month_price': 'Optional. Use if the final billing cycle costs differently (e.g. discounted last payment).',
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+
+        if start_date and end_date and end_date <= start_date:
+            self.add_error('end_date', 'End date must be after start date.')
+
+        return cleaned_data
 
 
 class CategoryForm(forms.ModelForm):
