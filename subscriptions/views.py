@@ -33,13 +33,14 @@ def _effective_price(sub, month_start):
     return sub.price
 
 
-def _annual_forecast(subscriptions):
+def _annual_forecast(subscriptions, today=None):
     """
     Count actual billing cycles that fall within the next 12 months.
     Each cycle is counted as a full payment (no day-based proration),
     so first/last month overrides apply correctly.
     """
-    today = date.today()
+    if today is None:
+        today = date.today()
     try:
         forecast_end = today.replace(year=today.year + 1)
     except ValueError:

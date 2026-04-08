@@ -36,6 +36,11 @@ superuser:
 seed:
 	docker compose exec web python seed_demo_data.py
 
+# ── Tests ─────────────────────────────────────────────────────────────────────
+
+test:
+	docker compose exec web python manage.py test subscriptions --verbosity=2
+
 # ── Local dev (no Docker) ─────────────────────────────────────────────────────
 
 run:
