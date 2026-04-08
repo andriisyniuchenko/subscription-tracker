@@ -1,0 +1,35 @@
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <ul class="errorlist">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% for field in form %}
+            <div class="form-group {% if field.widget_type == 'checkbox' %}checkbox-row{% endif %}">
+                {% if field.widget_type == 'checkbox' %}
+                    {{ field }}
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {% else %}
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                {% endif %}
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit">{{ submit_label }}</button>
+            <a class="btn btn-secondary" href="{% url 'subscription_list' %}">Cancel</a>
+        </div>
+    </form>
+</div>
