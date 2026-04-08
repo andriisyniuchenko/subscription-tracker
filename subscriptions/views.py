@@ -129,10 +129,14 @@ def category_list(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST)
         if form.is_valid():
-            category = form.save(commit=False)
-            category.user = request.user
-            category.save()
-            return redirect('category_list')
+            name = form.cleaned_data['name']
+            if Category.objects.filter(user=request.user, name=name).exists():
+                form.add_error('name', 'You already have a category with this name.')
+            else:
+                category = form.save(commit=False)
+                category.user = request.user
+                category.save()
+                return redirect('category_list')
     else:
         form = CategoryForm()
 
