@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import Subscription
+from .models import Subscription, Category
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'user')
+    search_fields = ('name', 'user__username')
 
 
 @admin.register(Subscription)

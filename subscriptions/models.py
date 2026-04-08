@@ -2,6 +2,18 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class Category(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='categories')
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        unique_together = ['user', 'name']
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
 class Subscription(models.Model):
     BILLING_CHOICES = [
         ('monthly', 'Monthly'),
@@ -9,6 +21,13 @@ class Subscription(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        Category,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='subscriptions'
+    )
 
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=6, decimal_places=2)

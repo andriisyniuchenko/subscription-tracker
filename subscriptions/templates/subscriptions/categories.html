@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Categories{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Categories</h1>
+    <a class="btn btn-secondary" href="{% url 'subscription_list' %}">Back</a>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start;">
+
+    <div class="card">
+        <h2>Add Category</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% if form.name.errors %}
+                {% for error in form.name.errors %}
+                    <p class="field-error" style="margin-bottom: 0.75rem;">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+            <div style="display: flex; gap: 0.75rem;">
+                {{ form.name }}
+                <button class="btn btn-primary" type="submit">Add</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Your Categories</h2>
+        {% if categories %}
+            <ul class="category-manage-list">
+                {% for cat in categories %}
+                    <li>
+                        <span>{{ cat.name }}</span>
+                        <form method="post" action="{% url 'delete_category' cat.id %}">
+                            {% csrf_token %}
+                            <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="empty">No categories yet.</p>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

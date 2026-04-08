@@ -5,7 +5,10 @@
 {% block content %}
 <div class="page-header">
     <h1>Subscriptions</h1>
-    <a class="btn btn-primary" href="{% url 'create_subscription' %}">+ Add Subscription</a>
+    <div class="actions">
+        <a class="btn btn-secondary" href="{% url 'category_list' %}">Categories</a>
+        <a class="btn btn-primary" href="{% url 'create_subscription' %}">+ Add Subscription</a>
+    </div>
 </div>
 
 <div class="stats">
@@ -19,47 +22,58 @@
     </div>
 </div>
 
-<div class="card">
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Billing</th>
-                <th>Start date</th>
-                <th>End date</th>
-                <th>Status</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for sub in subscriptions %}
-                <tr>
-                    <td>{{ sub.name }}</td>
-                    <td>${{ sub.price }}</td>
-                    <td>{{ sub.get_billing_cycle_display }}</td>
-                    <td>{{ sub.start_date }}</td>
-                    <td>{{ sub.end_date|default:"—" }}</td>
-                    <td>
-                        {% if sub.is_active %}
-                            <span class="badge badge-green">Active</span>
-                        {% else %}
-                            <span class="badge badge-gray">Inactive</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <div class="actions">
-                            <a class="btn btn-secondary btn-sm" href="{% url 'update_subscription' sub.id %}">Edit</a>
-                            <a class="btn btn-danger btn-sm" href="{% url 'delete_subscription' sub.id %}">Delete</a>
-                        </div>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="6" class="empty">No subscriptions yet. Add your first one!</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+{% for group in groups %}
+    <div class="category-group">
+        <div class="category-header">
+            <span class="category-name">
+                {% if group.category %}{{ group.category.name }}{% else %}Uncategorized{% endif %}
+            </span>
+            <span class="category-total">${{ group.monthly_total }}/mo</span>
+        </div>
+
+        <div class="card" style="padding: 0;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Billing</th>
+                        <th>Start date</th>
+                        <th>End date</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in group.subscriptions %}
+                        <tr>
+                            <td>{{ sub.name }}</td>
+                            <td>${{ sub.price }}</td>
+                            <td>{{ sub.get_billing_cycle_display }}</td>
+                            <td>{{ sub.start_date }}</td>
+                            <td>{{ sub.end_date|default:"—" }}</td>
+                            <td>
+                                {% if sub.is_active %}
+                                    <span class="badge badge-green">Active</span>
+                                {% else %}
+                                    <span class="badge badge-gray">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <a class="btn btn-secondary btn-sm" href="{% url 'update_subscription' sub.id %}">Edit</a>
+                                    <a class="btn btn-danger btn-sm" href="{% url 'delete_subscription' sub.id %}">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% empty %}
+    <div class="card">
+        <p class="empty">No subscriptions yet. Add your first one!</p>
+    </div>
+{% endfor %}
 {% endblock %}
