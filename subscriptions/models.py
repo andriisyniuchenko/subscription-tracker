@@ -41,6 +41,9 @@ class Subscription(models.Model):
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
 
+    first_month_price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    last_month_price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+
     notes = models.TextField(blank=True, default='')
 
     is_active = models.BooleanField(default=True)

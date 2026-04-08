@@ -10,6 +10,25 @@ from .models import Subscription, Category
 from .forms import SubscriptionForm, CategoryForm, RegistrationForm
 
 
+def _month_start(d):
+    return d.replace(day=1)
+
+
+def _next_month(d):
+    if d.month == 12:
+        return date(d.year + 1, 1, 1)
+    return date(d.year, d.month + 1, 1)
+
+
+def _effective_price(sub, month_start):
+    """Return the price applicable for a given month start date."""
+    if sub.first_month_price is not None and month_start == _month_start(sub.start_date):
+        return sub.first_month_price
+    if sub.last_month_price is not None and sub.end_date and month_start == _month_start(sub.end_date):
+        return sub.last_month_price
+    return sub.price
+
+
 def _annual_forecast(subscriptions):
     today = date.today()
     try:
@@ -17,7 +36,6 @@ def _annual_forecast(subscriptions):
     except ValueError:
         forecast_end = today.replace(year=today.year + 1, day=28)
 
-    total_days = (forecast_end - today).days
     forecast = Decimal('0')
 
     for sub in subscriptions:
@@ -30,9 +48,23 @@ def _annual_forecast(subscriptions):
         if period_end <= period_start:
             continue
 
-        days_active = (period_end - period_start).days
-        annual_price = sub.price * 12 if sub.billing_cycle == 'monthly' else sub.price
-        forecast += annual_price * Decimal(days_active) / Decimal(total_days)
+        if sub.billing_cycle == 'yearly':
+            days_active = (period_end - period_start).days
+            total_days = (forecast_end - today).days
+            forecast += sub.price * Decimal(days_active) / Decimal(total_days)
+            continue
+
+        # Monthly: iterate month by month to apply first/last price overrides
+        cursor = _month_start(period_start)
+        while cursor < period_end:
+            nm = _next_month(cursor)
+            active_start = max(cursor, period_start)
+            active_end = min(nm, period_end)
+            days_active = (active_end - active_start).days
+            days_in_month = (nm - cursor).days
+            price = _effective_price(sub, cursor)
+            forecast += price * Decimal(days_active) / Decimal(days_in_month)
+            cursor = nm
 
     return round(forecast, 2)
 
@@ -109,8 +141,9 @@ def subscription_list(request):
     subscriptions = subscriptions.order_by(sort if direction == 'asc' else f'-{sort}')
 
     # --- Stats (on filtered set) ---
+    today = date.today()
     total_monthly = sum(
-        sub.price if sub.billing_cycle == 'monthly' else sub.price / 12
+        (_effective_price(sub, _month_start(today)) if sub.billing_cycle == 'monthly' else sub.price / 12)
         for sub in subscriptions if sub.is_active
     )
     active_count = sum(1 for sub in subscriptions if sub.is_active)

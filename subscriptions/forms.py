@@ -13,7 +13,8 @@ class SubscriptionForm(forms.ModelForm):
 
     class Meta:
         model = Subscription
-        fields = ['name', 'price', 'billing_cycle', 'category', 'start_date', 'end_date', 'notes', 'is_active']
+        fields = ['name', 'price', 'billing_cycle', 'category', 'start_date', 'end_date',
+                  'first_month_price', 'last_month_price', 'notes', 'is_active']
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date'}),
             'end_date': forms.DateInput(attrs={'type': 'date'}),
