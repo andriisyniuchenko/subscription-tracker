@@ -1,0 +1,9 @@
+{% if current_sort == col %}
+    {% if current_dir == "asc" %}
+        <a class="sort-link sort-active" href="?{{ base_qs }}{% if base_qs %}&{% endif %}sort={{ col }}&dir=desc">{{ label }} ↑</a>
+    {% else %}
+        <a class="sort-link sort-active" href="?{{ base_qs }}{% if base_qs %}&{% endif %}sort={{ col }}&dir=asc">{{ label }} ↓</a>
+    {% endif %}
+{% else %}
+    <a class="sort-link" href="?{{ base_qs }}{% if base_qs %}&{% endif %}sort={{ col }}&dir=asc">{{ label }}</a>
+{% endif %}

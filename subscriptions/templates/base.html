@@ -204,6 +204,32 @@
         .auth-footer { text-align: center; margin-top: 1.25rem; font-size: 0.85rem; color: #6b7280; }
         .auth-footer a { color: #4f46e5; text-decoration: none; }
 
+        /* Filter bar */
+        .filter-bar {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .filter-bar input[type="text"],
+        .filter-bar select {
+            width: auto;
+            min-width: 160px;
+        }
+
+        /* Sort links in table headers */
+        .sort-link {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+        .sort-link:hover { color: #4f46e5; }
+        .sort-link.sort-active { color: #4f46e5; }
+
         /* Category groups */
         .category-group { margin-bottom: 1.75rem; }
 

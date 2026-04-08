@@ -26,6 +26,35 @@
     </div>
 </div>
 
+{# Filter bar #}
+<form class="filter-bar" method="get">
+    <input type="text" name="q" value="{{ filters.q }}" placeholder="Search by name...">
+
+    <select name="category">
+        <option value="">All categories</option>
+        {% for cat in user_categories %}
+            <option value="{{ cat.id }}" {% if filters.category == cat.id|stringformat:"s" %}selected{% endif %}>
+                {{ cat.name }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <select name="status">
+        <option value="">All statuses</option>
+        <option value="active"   {% if filters.status == "active"   %}selected{% endif %}>Active</option>
+        <option value="inactive" {% if filters.status == "inactive" %}selected{% endif %}>Inactive</option>
+    </select>
+
+    {# preserve current sort when filtering #}
+    {% if current_sort %}<input type="hidden" name="sort" value="{{ current_sort }}">{% endif %}
+    {% if current_dir  %}<input type="hidden" name="dir"  value="{{ current_dir }}">{% endif %}
+
+    <button class="btn btn-primary" type="submit">Filter</button>
+    {% if filters.q or filters.category or filters.status %}
+        <a class="btn btn-secondary" href="{% url 'subscription_list' %}">Clear</a>
+    {% endif %}
+</form>
+
 {% for group in groups %}
     <div class="category-group">
         <div class="category-header">
@@ -39,11 +68,11 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Billing</th>
-                        <th>Start date</th>
-                        <th>End date</th>
+                        <th>{% include "subscriptions/_sort_th.html" with col="name"          label="Name"         %}</th>
+                        <th>{% include "subscriptions/_sort_th.html" with col="price"         label="Price"        %}</th>
+                        <th>{% include "subscriptions/_sort_th.html" with col="billing_cycle" label="Billing"      %}</th>
+                        <th>{% include "subscriptions/_sort_th.html" with col="start_date"    label="Start date"   %}</th>
+                        <th>{% include "subscriptions/_sort_th.html" with col="end_date"      label="End date"     %}</th>
                         <th>Status</th>
                         <th>Notes</th>
                         <th></th>
@@ -85,7 +114,7 @@
     </div>
 {% empty %}
     <div class="card">
-        <p class="empty">No subscriptions yet. Add your first one!</p>
+        <p class="empty">No subscriptions found.</p>
     </div>
 {% endfor %}
 {% endblock %}

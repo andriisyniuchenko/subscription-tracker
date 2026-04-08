@@ -1,5 +1,6 @@
 from datetime import date
 from decimal import Decimal
+from urllib.parse import urlencode
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -77,18 +78,44 @@ def delete_subscription(request, pk):
     return render(request, 'subscriptions/delete.html', {'subscription': subscription})
 
 
+VALID_SORT_FIELDS = {'name', 'price', 'billing_cycle', 'start_date', 'end_date'}
+
+
 @login_required
 def subscription_list(request):
     subscriptions = Subscription.objects.filter(user=request.user).select_related('category')
 
+    # --- Filters ---
+    q           = request.GET.get('q', '').strip()
+    category_id = request.GET.get('category', '').strip()
+    status      = request.GET.get('status', '').strip()
+    sort        = request.GET.get('sort', 'name').strip()
+    direction   = request.GET.get('dir', 'asc').strip()
+
+    if q:
+        subscriptions = subscriptions.filter(name__icontains=q)
+    if category_id:
+        subscriptions = subscriptions.filter(category_id=category_id)
+    if status == 'active':
+        subscriptions = subscriptions.filter(is_active=True)
+    elif status == 'inactive':
+        subscriptions = subscriptions.filter(is_active=False)
+
+    # --- Sorting ---
+    if sort not in VALID_SORT_FIELDS:
+        sort = 'name'
+    if direction not in ('asc', 'desc'):
+        direction = 'asc'
+    subscriptions = subscriptions.order_by(sort if direction == 'asc' else f'-{sort}')
+
+    # --- Stats (on filtered set) ---
     total_monthly = sum(
         sub.price if sub.billing_cycle == 'monthly' else sub.price / 12
-        for sub in subscriptions
-        if sub.is_active
+        for sub in subscriptions if sub.is_active
     )
     active_count = sum(1 for sub in subscriptions if sub.is_active)
 
-    # Group subscriptions by category
+    # --- Group by category (preserving sort order within groups) ---
     groups_dict = {}
     uncategorized = []
 
@@ -116,11 +143,26 @@ def subscription_list(request):
         ), 2)
         groups.append({'category': None, 'subscriptions': uncategorized, 'monthly_total': uncat_total})
 
+    # Base query string for sort links (without sort/dir)
+    base_params = {}
+    if q:
+        base_params['q'] = q
+    if category_id:
+        base_params['category'] = category_id
+    if status:
+        base_params['status'] = status
+    base_qs = urlencode(base_params)
+
     return render(request, 'subscriptions/list.html', {
         'groups': groups,
         'total_monthly': round(total_monthly, 2),
         'active_count': active_count,
         'annual_forecast': _annual_forecast(subscriptions),
+        'user_categories': Category.objects.filter(user=request.user),
+        'filters': {'q': q, 'category': category_id, 'status': status},
+        'current_sort': sort,
+        'current_dir': direction,
+        'base_qs': base_qs,
     })
 
 
