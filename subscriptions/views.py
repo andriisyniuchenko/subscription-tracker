@@ -1,3 +1,4 @@
+import calendar as cal
 from datetime import date
 from decimal import Decimal
 from urllib.parse import urlencode
@@ -14,14 +15,17 @@ def _month_start(d):
     return d.replace(day=1)
 
 
-def _next_month(d):
-    if d.month == 12:
-        return date(d.year + 1, 1, 1)
-    return date(d.year, d.month + 1, 1)
+def _add_months(d, n):
+    """Add n months to date d, clamping day to valid range."""
+    month = d.month - 1 + n
+    year = d.year + month // 12
+    month = month % 12 + 1
+    day = min(d.day, cal.monthrange(year, month)[1])
+    return date(year, month, day)
 
 
 def _effective_price(sub, month_start):
-    """Return the price applicable for a given month start date."""
+    """Return the price for the current calendar month (used in total_monthly)."""
     if sub.first_month_price is not None and month_start == _month_start(sub.start_date):
         return sub.first_month_price
     if sub.last_month_price is not None and sub.end_date and month_start == _month_start(sub.end_date):
@@ -30,6 +34,11 @@ def _effective_price(sub, month_start):
 
 
 def _annual_forecast(subscriptions):
+    """
+    Count actual billing cycles that fall within the next 12 months.
+    Each cycle is counted as a full payment (no day-based proration),
+    so first/last month overrides apply correctly.
+    """
     today = date.today()
     try:
         forecast_end = today.replace(year=today.year + 1)
@@ -41,30 +50,56 @@ def _annual_forecast(subscriptions):
     for sub in subscriptions:
         if not sub.is_active:
             continue
-
-        period_start = max(sub.start_date, today)
-        period_end = min(sub.end_date, forecast_end) if sub.end_date else forecast_end
-
-        if period_end <= period_start:
+        if sub.end_date and sub.end_date <= today:
+            continue
+        if sub.start_date >= forecast_end:
             continue
 
         if sub.billing_cycle == 'yearly':
-            days_active = (period_end - period_start).days
-            total_days = (forecast_end - today).days
-            forecast += sub.price * Decimal(days_active) / Decimal(total_days)
+            # Yearly stays proportional by days (one big payment per year)
+            period_start = max(sub.start_date, today)
+            period_end = min(sub.end_date, forecast_end) if sub.end_date else forecast_end
+            if period_end > period_start:
+                total_days = (forecast_end - today).days
+                forecast += sub.price * Decimal((period_end - period_start).days) / Decimal(total_days)
             continue
 
-        # Monthly: iterate month by month to apply first/last price overrides
-        cursor = _month_start(period_start)
-        while cursor < period_end:
-            nm = _next_month(cursor)
-            active_start = max(cursor, period_start)
-            active_end = min(nm, period_end)
-            days_active = (active_end - active_start).days
-            days_in_month = (nm - cursor).days
-            price = _effective_price(sub, cursor)
-            forecast += price * Decimal(days_active) / Decimal(days_in_month)
-            cursor = nm
+        # Monthly: count discrete billing cycles
+        # Determine total number of payments for this subscription
+        if sub.end_date:
+            n = 0
+            while _add_months(sub.start_date, n + 1) < sub.end_date:
+                n += 1
+            total_payments = n + 1
+        else:
+            total_payments = None
+
+        payment_num = 0
+        while True:
+            period_start = _add_months(sub.start_date, payment_num)
+            next_billing = _add_months(sub.start_date, payment_num + 1)
+
+            if total_payments is not None and payment_num >= total_payments:
+                break
+            if period_start >= forecast_end:
+                break
+            # Skip billing periods that ended before today (already paid)
+            if next_billing <= today:
+                payment_num += 1
+                continue
+
+            is_first = (payment_num == 0)
+            is_last = (total_payments is not None and payment_num == total_payments - 1)
+
+            if is_first and sub.first_month_price is not None:
+                price = sub.first_month_price
+            elif is_last and sub.last_month_price is not None:
+                price = sub.last_month_price
+            else:
+                price = sub.price
+
+            forecast += price
+            payment_num += 1
 
     return round(forecast, 2)
 
