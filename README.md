@@ -1,6 +1,10 @@
 # Subscription Tracker
 
 [![CI](https://github.com/andriisyniuchenko/subscription-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/andriisyniuchenko/subscription-tracker/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-6.0-092E20?logo=django&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
 
 A Django web application for tracking personal subscriptions and recurring expenses. Supports multiple users, custom categories, and a 12-month cost forecast that accounts for subscription end dates.
 
